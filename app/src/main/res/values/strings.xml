@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MVVMTodo</string>
+    <string name="mytodo">My Todo</string>
+</resources>
