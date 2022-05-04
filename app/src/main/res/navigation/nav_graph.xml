@@ -12,7 +12,9 @@
         tools:layout="@layout/fragment_tasks">
         <action
             android:id="@+id/action_tasksFragment_to_addEditTaskFragment"
-            app:destination="@id/addEditTaskFragment" />
+            app:destination="@id/addEditTaskFragment"
+            app:enterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out" />
     </fragment>
     <fragment
         android:id="@+id/addEditTaskFragment"
@@ -27,6 +29,11 @@
         <argument
             android:name="title"
             app:argType="string" />
+        <action
+            android:id="@+id/addEditTaskAction"
+            app:enterAnim="@anim/fade_out"
+            app:popExitAnim="@anim/fade_out"
+            app:popUpTo="@id/tasksFragment" />
     </fragment>
     <dialog
         android:id="@+id/deleteAllCompletedDialogFragment"

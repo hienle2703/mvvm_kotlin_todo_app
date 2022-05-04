@@ -35,7 +35,7 @@ class AddEditTaskFragment : Fragment(R.layout.fragment_add_edit_task) {
         binding.apply {
             editTextTaskName.setText(viewModel.taskName)
             checkBoxImportant.isChecked = viewModel.taskImportance
-            checkBoxImportant.jumpDrawablesToCurrentState() // Gắn cái này để checkbox nó hiện sẵn cái trạng thái luôn chứ ko bị animation khi nào trang
+            checkBoxImportant.jumpDrawablesToCurrentState() // Gắn cái này để checkbox nó hiện sẵn cái trạng thái luôn chứ ko bị anim khi nào trang
             textViewDateCreated.isVisible = viewModel.task != null
             textViewDateCreated.text = "Created: ${viewModel.task?.createDateFormatted}"
 
