@@ -1,5 +1,6 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
+import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
@@ -9,6 +10,7 @@ import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.data.TaskDao
 import com.codinginflow.mvvmtodo.ui.ADD_TASK_RESULT_OK
 import com.codinginflow.mvvmtodo.ui.EDIT_TASK_RESULT_OK
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -24,6 +26,7 @@ class TasksViewModel @ViewModelInject constructor(
 
     //    val searchQuery = MutableStateFlow("")
     val searchQuery = state.getLiveData("searchQuery", "")
+
 
     val preferencesFlow = preferencesManager.preferencesFlow
 
@@ -58,17 +61,22 @@ class TasksViewModel @ViewModelInject constructor(
     }
 
     // handle swipe task fragment
-    fun onTaskSwiped(task: Task) = viewModelScope.launch {
-        taskDao.delete(task) // chỉ cần gọi tới dao là nó delete cho mình
+    fun onTaskSwiped(task: Task, checkEmpty: (emptyCondition: Int) -> Unit) =
+        viewModelScope.launch {
 
-        // CHỖ NÀY NÊN SHOW SNACKBAR SAU KHI DELETE
-        // ViewModel không nên liên kết tới fragment/activity vì có khả năng dẫn tới memory leak
-        // Vậy nên thay vì gọi tới fragment, thì mình dispatch 1 cái event để show snackbar
-        tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
-    }
+            taskDao.delete(task)
 
-    fun onUndoDeleteClick(task: Task) = viewModelScope.launch {
+            // CHỖ NÀY NÊN SHOW SNACK BAR SAU KHI DELETE
+            // ViewModel không nên liên kết tới fragment/activity vì có khả năng dẫn tới memory leak
+            // Vậy nên thay vì gọi tới fragment, thì mình dispatch 1 cái event để show snackbar
+            tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
+
+            checkEmpty((tasks.value?.count()?.minus(1)) ?: 0)
+        }
+
+    fun onUndoDeleteClick(task: Task, checkEmpty: (emptyCondition: Int) -> Unit) = viewModelScope.launch {
         taskDao.insert(task)
+        checkEmpty(tasks.value?.count()?.plus(1) ?: 0)
     }
 
     fun onAddNewTaskClick() = viewModelScope.launch {
@@ -77,7 +85,9 @@ class TasksViewModel @ViewModelInject constructor(
 
     fun onAddEditResult(result: Int) {
         when (result) {
-            ADD_TASK_RESULT_OK -> showTaskSavedConfirmationMessage("Task added")
+            ADD_TASK_RESULT_OK -> {
+                showTaskSavedConfirmationMessage("Task added")
+            }
             EDIT_TASK_RESULT_OK -> showTaskSavedConfirmationMessage("Task updated")
 
         }

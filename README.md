@@ -45,8 +45,23 @@ Model =
   *interface: giao diện / khai báo. chỉ là class giữ nhiệm vụ khai báo chứ ko có định nghĩa.
 
 3/ Dagger ? Hilt ?
+- Dagger là 1 dependency injection framework, dùng để generate code thông qua base annotation (chú thích) và để quản lý các dependencies
+- Có thể hiểu Dependency Injection một cách đơn giản như sau:
+  Các module không giao tiếp trực tiếp với nhau, mà thông qua interface. 
+  Module cấp thấp sẽ implement interface, module cấp cao sẽ gọi module cấp thấp thông qua interface.
 
-4/ Room ? Entity ? RoomDatabase ?
+- Tuy nhiên thì Dagger khá rộng và nặng => Dagger-Hilt là 1 phần của thư viện . Chia thành 4 phần:
+    + Module: Provider
+    + Provides: Provider
+    + Component: Bridge
+    + Inject: 
+  
+4/ Room ? @Entity ? RoomDatabase ?
+- Room Database
+
+- @Entity: create a SQLite table using data model 
+- @Dao: create a Data Access Object in the db using interface class
+- @Database: A class with this annotation will create an abstraction for the DAO
 
 5/ Inject? Singleton?
 
@@ -68,6 +83,8 @@ Model =
 13/ RecyclerView? RecyclerViewAdapter? ListAdapter?
 
 14/ binding? inflate?
+- binding: view binding giúp tối giản code, thay thế cho findViewById
+- inflater, inflate: dùng để biến code XML thành View(Java code) trong android
 
 15/ asLiveData()
 
