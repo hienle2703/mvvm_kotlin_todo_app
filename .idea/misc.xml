@@ -4,6 +4,9 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/task_card.xml" value="0.2845" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.36277173913043476" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.3401268115942029" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.25226449275362317" />
         <entry key="app/src/main/res/layout/fragment_tasks.xml" value="0.3763586956521739" />
         <entry key="app/src/main/res/layout/item_task.xml" value="0.45" />
       </map>

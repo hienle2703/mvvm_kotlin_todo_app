@@ -2,10 +2,11 @@
   <library name="Gradle: androidx.datastore:datastore-preferences:1.0.0-alpha02@aar">
     <CLASSES>
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/8f9a6d1e2f9b86efc884a7694da12372/transformed/jetified-datastore-preferences-1.0.0-alpha02/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/570cf240070878cc8e1828026ff155a5/transformed/jetified-datastore-preferences-1.0.0-alpha02/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/570cf240070878cc8e1828026ff155a5/transformed/jetified-datastore-preferences-1.0.0-alpha02/AndroidManifest.xml" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/570cf240070878cc8e1828026ff155a5/transformed/jetified-datastore-preferences-1.0.0-alpha02/jars/libs/datastore-preferences-proto-release-jarjar.jar!/" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/570cf240070878cc8e1828026ff155a5/transformed/jetified-datastore-preferences-1.0.0-alpha02/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/5d89b031b4ebd79959fada8acee842bd/transformed/jetified-datastore-preferences-1.0.0-alpha02/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/5d89b031b4ebd79959fada8acee842bd/transformed/jetified-datastore-preferences-1.0.0-alpha02/jars/libs/datastore-preferences-proto-release-jarjar.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5d89b031b4ebd79959fada8acee842bd/transformed/jetified-datastore-preferences-1.0.0-alpha02/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5d89b031b4ebd79959fada8acee842bd/transformed/jetified-datastore-preferences-1.0.0-alpha02/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
