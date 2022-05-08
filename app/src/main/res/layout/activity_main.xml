@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#fff0bd"
+    android:background="@color/white"
     android:orientation="vertical"
     tools:context=".ui.MainActivity">
 
@@ -24,7 +24,7 @@
         android:layout_marginTop="20dp"
         android:text="My Todo"
         android:textColor="#ccb462"
-        android:textSize="20dp" />
+        android:textSize="30dp" />
 
     <!--    <androidx.fragment.app.FragmentContainerView-->
     <!--        android:id="@+id/nav_host_fragment"-->
