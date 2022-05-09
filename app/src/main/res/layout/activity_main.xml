@@ -23,7 +23,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
         android:text="My Todo"
-        android:textColor="#ccb462"
+        android:textColor="@color/indigo"
         android:textSize="30dp" />
 
     <!--    <androidx.fragment.app.FragmentContainerView-->

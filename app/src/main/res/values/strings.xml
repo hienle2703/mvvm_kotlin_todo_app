@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">MVVMTodo</string>
     <string name="mytodo">My Todo</string>
+    <string name="sign_in_pic_describe">Sign in image</string>
+    <string name="sign_in">Login</string>
+    <string name="register">Register</string>
+    <string name="new_to_app">New to MyTodo?</string>
 </resources>
