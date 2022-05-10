@@ -17,12 +17,13 @@
             android:name=".ui.auth.RegistrationActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.HomeActivity"
-            android:exported="true"
-            android:theme="@style/FullScreenNoTitle">
-        </activity>
+            android:name=".ui.home.HomeActivity"
+            android:exported="false" />
+        <!--            android:theme="@style/FullScreenNoTitle" -->
+
         <activity
             android:name=".ui.MainActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
