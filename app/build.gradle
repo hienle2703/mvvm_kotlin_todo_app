@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
     id 'kotlin-android'
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
@@ -41,6 +42,7 @@ android {
         jvmTarget = '1.8'
         freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
     }
+
 }
 
 dependencies {
@@ -50,6 +52,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.0.3'
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$testExtJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
@@ -83,6 +87,9 @@ dependencies {
 
     // DataStore
     implementation "androidx.datastore:datastore-preferences:$dataStoreVersion"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.0.0')
 }
 
 kapt {

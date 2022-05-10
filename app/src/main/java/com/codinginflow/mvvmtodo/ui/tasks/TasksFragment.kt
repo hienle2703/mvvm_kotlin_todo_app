@@ -1,15 +1,16 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -24,12 +25,14 @@ import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 
 import com.google.android.material.snackbar.Snackbar
-
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_tasks.*
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+private const val TAG = "TasksFragment"
 
 @AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClickListener {
@@ -38,19 +41,26 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
     private lateinit var searchView: SearchView
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentTasksBinding.bind(view)
+
         val taskAdapter =
             TasksAdapter(this) // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
+
 
         binding.apply {
             recyclerViewTasks.apply {
                 adapter = taskAdapter
+
+
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
             }
+
+
             // IMPORTANT!: Handle Swipe action of Task Fragment
             ItemTouchHelper(object :
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
@@ -64,7 +74,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val task = taskAdapter.currentList[viewHolder.adapterPosition]
-                    viewModel.onTaskSwiped(task)
+                    viewModel.onTaskSwiped(task,  ::checkEmpty)
+
+
                 }
             }).attachToRecyclerView(recyclerViewTasks)
 
@@ -81,6 +93,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
         viewModel.tasks.observe(viewLifecycleOwner) {
             taskAdapter.submitList(it)
+
+            Log.v(TAG, "onViewCreated run")
+            checkEmpty(it.count() ?: 0)
         }
 
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
@@ -89,7 +104,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                     is TasksViewModel.TasksEvent.ShowUndoDeleteTaskMessage -> {
                         Snackbar.make(requireView(), "Task deleted", Snackbar.LENGTH_LONG)
                             .setAction("UNDO") {
-                                viewModel.onUndoDeleteClick(event.task)
+                                viewModel.onUndoDeleteClick(event.task, ::checkEmpty)
                             }
                             .show()
                     }
@@ -127,6 +142,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
         }
 
         setHasOptionsMenu(true)
+
+
+
     }
 
     override fun onItemClick(task: Task) {
@@ -194,5 +212,16 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
             searchView.setOnQueryTextListener(null)
         }
 
+    }
+
+    fun checkEmpty(emptyCondition: Int) {
+
+//        var emptyCondition = viewModel.tasks.value?.count() ?: 0
+
+        Log.v(TAG, "Viewmodel tasks $emptyCondition");
+
+        empty_view.visibility = (if (emptyCondition == 0) View.VISIBLE else View.GONE)
+        recycler_view_tasks.visibility =
+            (if (emptyCondition == 0) View.GONE else View.VISIBLE)
     }
 }
