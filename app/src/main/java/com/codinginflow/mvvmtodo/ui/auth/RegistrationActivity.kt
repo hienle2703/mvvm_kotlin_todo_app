@@ -4,6 +4,7 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -11,7 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.codinginflow.mvvmtodo.databinding.ActivityRegistrationBinding
 import com.codinginflow.mvvmtodo.ui.home.HomeActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.view.*
+
+val TAG: String = "Regist Activity"
 
 public class RegistrationActivity : AppCompatActivity() {
 
@@ -19,7 +24,7 @@ public class RegistrationActivity : AppCompatActivity() {
     private lateinit var password: String
     private lateinit var confirmPassword: String
 
-    private lateinit var mAuth: FirebaseAuth
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var loader: ProgressBar
 
@@ -29,7 +34,7 @@ public class RegistrationActivity : AppCompatActivity() {
         supportActionBar?.hide()
         window.statusBarColor = Color.WHITE
 
-        mAuth = FirebaseAuth.getInstance()
+        auth = Firebase.auth
         loader = ProgressBar(this)
 
         val binding = ActivityRegistrationBinding.inflate(layoutInflater)
@@ -60,25 +65,45 @@ public class RegistrationActivity : AppCompatActivity() {
                     return@setOnClickListener
                 } else {
                     loader.visibility = View.VISIBLE
-                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-                        if (it.isComplete) {
-                            val intent = Intent(this@RegistrationActivity, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                            loader.visibility = View.GONE
-                        } else {
-                            val error = it.exception.toString()
-                            Toast.makeText(
-                                this@RegistrationActivity,
-                                "Registration failed: $error",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            loader.visibility = View.GONE
+//                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
+//                        if (it.isComplete) {
+//                            val intent = Intent(this@RegistrationActivity, HomeActivity::class.java)
+//                            startActivity(intent)
+//                            finish()
+//                            loader.visibility = View.GONE
+//                        } else {
+//                            val error = it.exception.toString()
+//                            Toast.makeText(
+//                                this@RegistrationActivity,
+//                                "Registration failed: $error",
+//                                Toast.LENGTH_SHORT
+//                            ).show()
+//                            loader.visibility = View.GONE
+//                        }
+
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener(this@RegistrationActivity) { task ->
+                            if (task.isSuccessful) {
+                                Log.d(TAG, "createUserWithEmail:success")
+                                val user = auth.currentUser
+                                Log.d(TAG, user.toString())
+
+                               val intent = Intent(this@RegistrationActivity, HomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                                loader.visibility = View.GONE
+                            } else {
+                                Log.w(TAG, "createUserWithEmail:failure", task.exception)
+                                Toast.makeText(
+                                    baseContext, "Authentication failed.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
 
-                    }
                 }
             }
         }
     }
+
 }

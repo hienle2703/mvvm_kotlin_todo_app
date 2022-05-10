@@ -93,8 +93,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
         viewModel.tasks.observe(viewLifecycleOwner) {
             taskAdapter.submitList(it)
-
-            Log.v(TAG, "onViewCreated run")
             checkEmpty(it.count() ?: 0)
         }
 
