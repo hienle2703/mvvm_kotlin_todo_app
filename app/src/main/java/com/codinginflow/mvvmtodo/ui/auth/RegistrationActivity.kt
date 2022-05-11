@@ -16,7 +16,7 @@ import com.google.firebase.ktx.Firebase
 
 val TAG: String = "Regist Activity"
 
-public class RegistrationActivity : AppCompatActivity() {
+class RegistrationActivity : AppCompatActivity() {
 
     private lateinit var email: String
     private lateinit var password: String
@@ -43,6 +43,12 @@ public class RegistrationActivity : AppCompatActivity() {
                 finish()
             }
 
+            btnGoSignIn.setOnClickListener {
+                val intent = Intent(this@RegistrationActivity, LoginActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+
             btnSignUp.setOnClickListener {
                 email = inputEmail.text.toString().trim()
                 password = inputPassword.text.toString().trim()
@@ -63,21 +69,6 @@ public class RegistrationActivity : AppCompatActivity() {
                     return@setOnClickListener
                 } else {
                     loader.visibility = View.VISIBLE
-//                    mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener {
-//                        if (it.isComplete) {
-//                            val intent = Intent(this@RegistrationActivity, HomeActivity::class.java)
-//                            startActivity(intent)
-//                            finish()
-//                            loader.visibility = View.GONE
-//                        } else {
-//                            val error = it.exception.toString()
-//                            Toast.makeText(
-//                                this@RegistrationActivity,
-//                                "Registration failed: $error",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                            loader.visibility = View.GONE
-//                        }
 
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(this@RegistrationActivity) { task ->
@@ -86,7 +77,8 @@ public class RegistrationActivity : AppCompatActivity() {
                                 val user = auth.currentUser
                                 Log.d(TAG, user.toString())
 
-                               val intent = Intent(this@RegistrationActivity, HomeActivity::class.java)
+                                val intent =
+                                    Intent(this@RegistrationActivity, HomeActivity::class.java)
                                 startActivity(intent)
                                 finish()
                                 loader.visibility = View.GONE
@@ -96,6 +88,7 @@ public class RegistrationActivity : AppCompatActivity() {
                                     baseContext, "Authentication failed.",
                                     Toast.LENGTH_SHORT
                                 ).show()
+                                loader.visibility = View.GONE
                             }
                         }
 

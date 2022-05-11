@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MVVMTodo">
         <activity
+            android:name=".ui.auth.ForgotPasswordActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="false" />
         <activity
@@ -18,9 +21,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.home.HomeActivity"
-            android:exported="false" />
-        <!--            android:theme="@style/FullScreenNoTitle" -->
-
+            android:exported="false" /> <!-- android:theme="@style/FullScreenNoTitle" -->
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"

@@ -1,6 +1,5 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -22,7 +21,6 @@ import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
-import com.codinginflow.mvvmtodo.ui.auth.LoginActivity
 import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 
@@ -144,6 +142,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                             TasksFragmentDirections.actionGlobalDeleteAllCompletedDialogFragment()
                         findNavController().navigate(action)
                     }
+                    TasksViewModel.TasksEvent.ShowSignOutConfirmDialog -> {
+
+                        val action =
+                            TasksFragmentDirections.actionGlobalSignOutConfirmDialogFragment()
+                        findNavController().navigate(action)
+                    }
                 }.exhaustive
             }
         }
@@ -211,7 +215,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
             R.id.action_sign_out -> {
 
-                signOut()
+                viewModel.showSignOutConfirmDialog()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -237,9 +241,4 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
             (if (emptyCondition == 0) View.GONE else View.VISIBLE)
     }
 
-    private fun signOut() {
-        auth.signOut()
-        val intent = Intent(activity, LoginActivity::class.java)
-        startActivity(intent)
-    }
 }

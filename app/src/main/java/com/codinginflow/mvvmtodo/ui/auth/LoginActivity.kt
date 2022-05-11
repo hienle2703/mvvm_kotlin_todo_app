@@ -15,9 +15,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
+
     private lateinit var auth: FirebaseAuth
     private lateinit var loader: ProgressBar
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +37,14 @@ class LoginActivity : AppCompatActivity() {
                 )
                 startActivity(intent)
             }
+            btnForgotPassword.setOnClickListener {
+                val intent = Intent(this@LoginActivity, ForgotPasswordActivity::class.java)
+                startActivity(intent)
+            }
             btnLogin.setOnClickListener {
 
-                val email = inputEmail.toString().trim()
-                val password = inputPassword.toString().trim()
+                val email = inputEmail.text.toString().trim()
+                val password = inputPassword.text.toString().trim()
 
                 if (email.isEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
                         .matches()
@@ -52,48 +56,28 @@ class LoginActivity : AppCompatActivity() {
                 if (password.isEmpty() && password.length < 8) {
                     inputPassword.error = "Password is invalid"
                     return@setOnClickListener
-                } else {
-                    loader.visibility = View.VISIBLE
-//                    mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-//                        println("==================== $it")
-//                        if (it.isComplete) {
-//                            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-//                            startActivity(intent)
-//                            finish()
-//                            loader.visibility = View.GONE
-//                        } else {
-//                            val error = it.exception.toString()
-//                            Toast.makeText(
-//                                this@LoginActivity,
-//                                "Login failed: $error",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
-//                        }
-//
-//                    }
-
-                    auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this@LoginActivity) { task ->
-                            if (task.isSuccessful) {
-                                Log.d(TAG, "signInWithEmail:success")
-                                val user = auth.currentUser
-                                Log.d(TAG, user?.displayName.toString())
-                                navigateToHome()
-                            } else {
-                                Log.w(TAG, "signInWithEmail:failure", task.exception)
-                                Toast.makeText(
-                                    baseContext, "Authentication failed.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
                 }
+                loader.visibility = View.VISIBLE
 
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this@LoginActivity) { task ->
+                        if (task.isSuccessful) {
+                            Log.d(TAG, "signInWithEmail:success")
+                            val user = auth.currentUser
+                            Log.d(TAG, "User's displayname $user?.displayName.toString()")
+                            navigateToHome()
+                        } else {
+                            Log.d(TAG, "signInWithEmail:failure", task.exception)
+                            Toast.makeText(
+                                baseContext,
+                                "Authentication failed: ${task.exception?.message ?: "Null"}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
 
             }
         }
-
-
     }
 
     override fun onStart() {
@@ -101,13 +85,12 @@ class LoginActivity : AppCompatActivity() {
 
         // Check if user is signed in (non-null) and update UI accordingly.
         val currentUser = auth.currentUser
-        Log.d("Login", currentUser?.email.toString())
         if (currentUser != null) {
             navigateToHome()
         }
     }
 
-    fun navigateToHome() {
+    private fun navigateToHome() {
         val intent = Intent(this@LoginActivity, HomeActivity::class.java)
         startActivity(intent)
         finish()

@@ -1,6 +1,5 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
-import android.util.Log
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
@@ -10,9 +9,7 @@ import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.data.TaskDao
 import com.codinginflow.mvvmtodo.ui.home.ADD_TASK_RESULT_OK
 import com.codinginflow.mvvmtodo.ui.home.EDIT_TASK_RESULT_OK
-import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -74,10 +71,11 @@ class TasksViewModel @ViewModelInject constructor(
             checkEmpty((tasks.value?.count()?.minus(1)) ?: 0)
         }
 
-    fun onUndoDeleteClick(task: Task, checkEmpty: (emptyCondition: Int) -> Unit) = viewModelScope.launch {
-        taskDao.insert(task)
-        checkEmpty(tasks.value?.count()?.plus(1) ?: 0)
-    }
+    fun onUndoDeleteClick(task: Task, checkEmpty: (emptyCondition: Int) -> Unit) =
+        viewModelScope.launch {
+            taskDao.insert(task)
+            checkEmpty(tasks.value?.count()?.plus(1) ?: 0)
+        }
 
     fun onAddNewTaskClick() = viewModelScope.launch {
         tasksEventChannel.send(TasksEvent.NavigateToAddTaskScreen)
@@ -98,6 +96,10 @@ class TasksViewModel @ViewModelInject constructor(
         tasksEventChannel.send(TasksEvent.ShowDeleteAllCompletedDialog)
     }
 
+    fun showSignOutConfirmDialog() = viewModelScope.launch {
+        tasksEventChannel.send(TasksEvent.ShowSignOutConfirmDialog)
+    }
+
     private fun showTaskSavedConfirmationMessage(text: String) = viewModelScope.launch {
         tasksEventChannel.send(TasksEvent.ShowTaskSavedConfirmationMessage(text))
     }
@@ -108,6 +110,7 @@ class TasksViewModel @ViewModelInject constructor(
         data class ShowUndoDeleteTaskMessage(val task: Task) : TasksEvent()
         data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
         object ShowDeleteAllCompletedDialog : TasksEvent()
+        object ShowSignOutConfirmDialog : TasksEvent()
     }
 }
 
