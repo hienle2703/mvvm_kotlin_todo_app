@@ -1,5 +1,6 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -21,16 +22,21 @@ import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
+import com.codinginflow.mvvmtodo.ui.auth.LoginActivity
 import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tasks.*
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 private const val TAG = "TasksFragment"
 
@@ -41,10 +47,13 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
     private lateinit var searchView: SearchView
 
+    private lateinit var auth: FirebaseAuth
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        auth = Firebase.auth
         val binding = FragmentTasksBinding.bind(view)
 
         val taskAdapter =
@@ -74,7 +83,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val task = taskAdapter.currentList[viewHolder.adapterPosition]
-                    viewModel.onTaskSwiped(task,  ::checkEmpty)
+                    viewModel.onTaskSwiped(task, ::checkEmpty)
 
 
                 }
@@ -142,7 +151,6 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
         setHasOptionsMenu(true)
 
 
-
     }
 
     override fun onItemClick(task: Task) {
@@ -200,6 +208,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                 viewModel.onDeleteAllCompleteClick()
                 true
             }
+
+            R.id.action_sign_out -> {
+
+                signOut()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -221,5 +235,11 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
         empty_view.visibility = (if (emptyCondition == 0) View.VISIBLE else View.GONE)
         recycler_view_tasks.visibility =
             (if (emptyCondition == 0) View.GONE else View.VISIBLE)
+    }
+
+    private fun signOut() {
+        auth.signOut()
+        val intent = Intent(activity, LoginActivity::class.java)
+        startActivity(intent)
     }
 }

@@ -1,6 +1,5 @@
 package com.codinginflow.mvvmtodo.ui.auth
 
-import android.app.ProgressDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -14,7 +13,6 @@ import com.codinginflow.mvvmtodo.ui.home.HomeActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 val TAG: String = "Regist Activity"
 
