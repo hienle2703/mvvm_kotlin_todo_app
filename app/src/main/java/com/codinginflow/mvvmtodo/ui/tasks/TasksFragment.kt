@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -25,16 +26,12 @@ import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tasks.*
 
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 private const val TAG = "TasksFragment"
 
@@ -45,28 +42,21 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
     private lateinit var searchView: SearchView
 
-    private lateinit var auth: FirebaseAuth
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = Firebase.auth
         val binding = FragmentTasksBinding.bind(view)
 
-        val taskAdapter =
-            TasksAdapter(this) // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
-
+        // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
+        val taskAdapter = TasksAdapter(this)
 
         binding.apply {
             recyclerViewTasks.apply {
                 adapter = taskAdapter
 
-
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
             }
-
 
             // IMPORTANT!: Handle Swipe action of Task Fragment
             ItemTouchHelper(object :
@@ -100,9 +90,11 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
         viewModel.tasks.observe(viewLifecycleOwner) {
             taskAdapter.submitList(it)
+
             checkEmpty(it.count() ?: 0)
         }
 
+        // GATHER & DISPATCH EVENTS FROM VIEWMODEL
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.tasksEvent.collect { event ->
                 when (event) {
