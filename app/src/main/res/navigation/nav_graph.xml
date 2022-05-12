@@ -39,7 +39,14 @@
         android:id="@+id/deleteAllCompletedDialogFragment"
         android:name="com.codinginflow.mvvmtodo.ui.deleteallcompleted.DeleteAllCompletedDialogFragment"
         android:label="DeleteAllCompletedDialogFragment" />
+    <dialog
+        android:id="@+id/signOutConfirmDialogFragment"
+        android:name="com.codinginflow.mvvmtodo.ui.home.SignOutConfirmDialogFragment"
+        android:label="SignOutConfirmDialogFragment" />
     <action
         android:id="@+id/action_global_deleteAllCompletedDialogFragment"
         app:destination="@id/deleteAllCompletedDialogFragment" />
+    <action
+        android:id="@+id/action_global_signOutConfirmDialogFragment"
+        app:destination="@id/signOutConfirmDialogFragment" />
 </navigation>
