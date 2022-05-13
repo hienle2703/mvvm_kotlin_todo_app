@@ -12,7 +12,6 @@ import com.codinginflow.mvvmtodo.databinding.ItemTaskBinding
 class TasksAdapter(private val listener: OnItemClickListener) :
     ListAdapter<Task, TasksAdapter.TasksViewHolder>(DiffCallback()) {
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksViewHolder {
         val binding = ItemTaskBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return TasksViewHolder(binding)

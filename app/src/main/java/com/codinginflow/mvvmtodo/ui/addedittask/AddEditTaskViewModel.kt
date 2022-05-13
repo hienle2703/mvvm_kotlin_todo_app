@@ -1,6 +1,5 @@
 package com.codinginflow.mvvmtodo.ui.addedittask
 
-import android.widget.Toast
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 
@@ -30,7 +29,7 @@ class AddEditTaskViewModel @ViewModelInject constructor(
     val auth: FirebaseAuth = Firebase.auth
     private val user = auth.currentUser
     private val userId = user?.uid ?: ""
-    val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
+    private val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
 
     val task = state.get<Task>("task")
 
