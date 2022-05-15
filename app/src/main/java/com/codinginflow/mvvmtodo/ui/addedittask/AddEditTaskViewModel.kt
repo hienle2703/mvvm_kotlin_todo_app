@@ -7,8 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
-import com.codinginflow.mvvmtodo.data.Task
-import com.codinginflow.mvvmtodo.data.TaskDao
 import com.codinginflow.mvvmtodo.data.realtimedata.TaskModel
 import com.codinginflow.mvvmtodo.ui.home.ADD_TASK_RESULT_OK
 import com.codinginflow.mvvmtodo.ui.home.EDIT_TASK_RESULT_OK
@@ -22,7 +20,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class AddEditTaskViewModel @ViewModelInject constructor(
-    private val taskDao: TaskDao,
     @Assisted private val state: SavedStateHandle
 ) : ViewModel() {
 
@@ -31,7 +28,7 @@ class AddEditTaskViewModel @ViewModelInject constructor(
     private val userId = user?.uid ?: ""
     private val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
 
-    val task = state.get<Task>("task")
+    val task = state.get<TaskModel>("taskModel")
 
     var taskName = state.get<String>("taskName") ?: task?.name ?: ""
         set(value) {
@@ -49,46 +46,27 @@ class AddEditTaskViewModel @ViewModelInject constructor(
     val addEditTaskEvent = addEditTaskEventChannel.receiveAsFlow()
 
     fun onSaveClick() {
-        // input validation
-
         if (taskName.isBlank()) {
-            // show invalid input message
             showInvalidInputMessage("Name cannot be empty")
             return
         }
-
-        // update/add to database
         if (task != null) {
-
             val updatedTask = task.copy(name = taskName, important = taskImportance)
             updateTask(updatedTask)
         } else {
-            // --- If using Local DB
-            // val newTask = Task(taskName, taskImportance)
-            // createTask(newTask)
-
-            // --- If using Realtime DB from Firebase
-            val id: String = reference.push().key ?: ""
-            val newTask = TaskModel(id, taskName, taskImportance)
-            reference.child(id).setValue(newTask).addOnCompleteListener {
-                if (it.isSuccessful) {
-                    // TODO: Create an event to show Toast
-                } else {
-                    // TODO: Create an event to show Toast
-                }
-            }
+            createTask()
         }
     }
 
-    private fun createTask(task: Task) = viewModelScope.launch {
-        taskDao.insert(task)
-        // navigate back => must do through events
+    private fun createTask() = viewModelScope.launch {
+        val id: String = reference.push().key ?: ""
+        val newTask = TaskModel(id, taskName, taskImportance)
+        reference.child(id).setValue(newTask)
         addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(ADD_TASK_RESULT_OK))
     }
 
-    private fun updateTask(task: Task) = viewModelScope.launch {
-        taskDao.update(task)
-        // navigate back => must do through events
+    private fun updateTask(task: TaskModel) = viewModelScope.launch {
+        reference.child(task.id).setValue(task)
         addEditTaskEventChannel.send(AddEditTaskEvent.NavigateBackWithResult(EDIT_TASK_RESULT_OK))
     }
 

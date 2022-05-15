@@ -42,7 +42,7 @@ private const val TAG = "TasksFragment"
 @AndroidEntryPoint
 class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
-    private val viewModel: TasksViewModel by viewModels()
+    val viewModel: TasksViewModel by viewModels()
 
     private lateinit var searchView: SearchView
 
@@ -52,34 +52,45 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
     private val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
 
 
+    val options: FirebaseRecyclerOptions<TaskModel> =
+        FirebaseRecyclerOptions.Builder<TaskModel>()
+            .setQuery(reference, TaskModel::class.java)
+            .build()
+
+    val adapterFirebase =
+        object : FirebaseRecyclerAdapter<TaskModel, TasksViewHolder>(options) {
+
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksViewHolder {
+                val binding: ItemTaskBinding = ItemTaskBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false)
+                return TasksViewHolder(binding)
+            }
+
+            override fun onBindViewHolder(
+                holder: TasksViewHolder,
+                position: Int,
+                model: TaskModel
+            ) {
+                val currentItem = getItem(position)
+                holder.bind(currentItem)
+            }
+        }
+
+    override fun onStart() {
+        super.onStart()
+        adapterFirebase.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapterFirebase.stopListening()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val binding = FragmentTasksBinding.bind(view)
 
-        val options: FirebaseRecyclerOptions<TaskModel> =
-            FirebaseRecyclerOptions.Builder<TaskModel>()
-                .setQuery(reference, TaskModel::class.java)
-                .build()
-
-        val adapterFirebase =
-            object : FirebaseRecyclerAdapter<TaskModel, TasksViewHolder>(options) {
-
-                override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksViewHolder {
-                    val binding: ItemTaskBinding = ItemTaskBinding
-                        .inflate(LayoutInflater.from(parent.context), parent, false)
-                    return TasksViewHolder(binding)
-                }
-
-                override fun onBindViewHolder(
-                    holder: TasksViewHolder,
-                    position: Int,
-                    model: TaskModel
-                ) {
-                    val currentItem = getItem(position)
-                    holder.bind(currentItem)
-                }
-            }
 
         // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
 //        val taskAdapter = TasksAdapter(this)
@@ -153,12 +164,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                     }
                     is TasksViewModel.TasksEvent.NavigateToEditTaskScreen -> {
 
-//                        val action =
-//                            TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(
-//                                event.task,
-//                                "Edit Task"
-//                            )
-//                        findNavController().navigate(action)
+                        val action =
+                            TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(
+                                event.task,
+                                "Edit Task"
+                            )
+                        findNavController().navigate(action)
                     }
                     is TasksViewModel.TasksEvent.ShowTaskSavedConfirmationMessage -> {
                         Snackbar.make(requireView(), event.msg, Snackbar.LENGTH_SHORT).show()
@@ -181,14 +192,14 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         setHasOptionsMenu(true)
 
         binding.recyclerViewTasks.adapter = adapterFirebase
-        adapterFirebase.startListening()
+
     }
 
     fun onItemClick(task: TaskModel) {
         viewModel.onTaskSelected(task)
     }
 
-    fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+    fun onCheckBoxClick(task: TaskModel, isChecked: Boolean) {
         viewModel.onTaskCheckedChange(task, isChecked)
     }
 
@@ -266,15 +277,15 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                 root.setOnClickListener {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
-//                        val task = adapterFirebase.getItem(position)
-//                        onItemClick(task)
+                        val task = adapterFirebase.getItem(position)
+                        onItemClick(task)
                     }
                 }
                 checkBoxCompleted.setOnClickListener {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION) {
-//                        val task = adapter.getItem(position)
-//                        listener.onCheckBoxClick(task, checkBoxCompleted.isChecked)
+                        val task = adapterFirebase.getItem(position)
+                        onCheckBoxClick(task, checkBoxCompleted.isChecked)
                     }
                 }
 

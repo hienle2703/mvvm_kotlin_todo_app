@@ -1,7 +1,10 @@
 package com.codinginflow.mvvmtodo.data.realtimedata
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import java.text.DateFormat
 
+@Parcelize
 data class
 TaskModel(
     val id: String = "",
@@ -9,7 +12,7 @@ TaskModel(
     val important: Boolean = false,
     val completed: Boolean = false,
     val created: Long = System.currentTimeMillis(),
-) {
-//    val createDateFormatted: String
-//        get() = DateFormat.getDateTimeInstance().format(created)
+) : Parcelable {
+    val createDateFormatted: String
+        get() = DateFormat.getDateTimeInstance().format(created)
 }

@@ -55,8 +55,9 @@ class TasksViewModel @ViewModelInject constructor(
     }
 
     // update is a suspend function so we need coroutines
-    fun onTaskCheckedChange(task: Task, isChecked: Boolean) = viewModelScope.launch {
-        taskDao.update(task.copy(completed = isChecked))
+    fun onTaskCheckedChange(task: TaskModel, isChecked: Boolean) = viewModelScope.launch {
+        // taskDao.update(task.copy(completed = isChecked))
+        // TODO: Implement onTaskChanged
     }
 
     // handle swipe task fragment

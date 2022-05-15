@@ -22,9 +22,8 @@
         android:label="{title}"
         tools:layout="@layout/fragment_add_edit_task">
         <argument
-            android:name="task"
-            android:defaultValue="@null"
-            app:argType="com.codinginflow.mvvmtodo.data.Task"
+            android:name="taskModel"
+            app:argType="com.codinginflow.mvvmtodo.data.realtimedata.TaskModel"
             app:nullable="true" />
         <argument
             android:name="title"
