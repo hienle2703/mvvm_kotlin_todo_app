@@ -3,13 +3,19 @@ package com.codinginflow.mvvmtodo.ui.tasks
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.*
+
 import com.codinginflow.mvvmtodo.data.PreferencesManager
 import com.codinginflow.mvvmtodo.data.SortOrder
-import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.data.TaskDao
 import com.codinginflow.mvvmtodo.data.realtimedata.TaskModel
 import com.codinginflow.mvvmtodo.ui.home.ADD_TASK_RESULT_OK
 import com.codinginflow.mvvmtodo.ui.home.EDIT_TASK_RESULT_OK
+
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
+
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -25,6 +31,10 @@ class TasksViewModel @ViewModelInject constructor(
     //    val searchQuery = MutableStateFlow("")
     val searchQuery = state.getLiveData("searchQuery", "")
 
+    val auth: FirebaseAuth = Firebase.auth
+    private val user = auth.currentUser
+    private val userId = user?.uid ?: ""
+    private val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
 
     val preferencesFlow = preferencesManager.preferencesFlow
 
@@ -54,30 +64,20 @@ class TasksViewModel @ViewModelInject constructor(
         tasksEventChannel.send(TasksEvent.NavigateToEditTaskScreen(task))
     }
 
-    // update is a suspend function so we need coroutines
     fun onTaskCheckedChange(task: TaskModel, isChecked: Boolean) = viewModelScope.launch {
-        // taskDao.update(task.copy(completed = isChecked))
-        // TODO: Implement onTaskChanged
+        val newTask = task.copy(completed = isChecked)
+        reference.child(task.id).setValue(newTask)
     }
 
-    // handle swipe task fragment
     fun onTaskSwiped(task: TaskModel, checkEmpty: (emptyCondition: Int) -> Unit) =
         viewModelScope.launch {
-
-//            taskDao.delete(task)
-
-            // CHỖ NÀY NÊN SHOW SNACK BAR SAU KHI DELETE
-            // ViewModel không nên liên kết tới fragment/activity vì có khả năng dẫn tới memory leak
-            // Vậy nên thay vì gọi tới fragment, thì mình dispatch 1 cái event để show snackbar
-//            tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
-
-            checkEmpty((tasks.value?.count()?.minus(1)) ?: 0)
+            reference.child(task.id).removeValue()
+            tasksEventChannel.send(TasksEvent.ShowUndoDeleteTaskMessage(task))
         }
 
-    fun onUndoDeleteClick(task: Task, checkEmpty: (emptyCondition: Int) -> Unit) =
+    fun onUndoDeleteClick(task: TaskModel, checkEmpty: (emptyCondition: Int) -> Unit) =
         viewModelScope.launch {
-            taskDao.insert(task)
-            checkEmpty(tasks.value?.count()?.plus(1) ?: 0)
+            reference.child(task.id).setValue(task)
         }
 
     fun onAddNewTaskClick() = viewModelScope.launch {
@@ -110,7 +110,7 @@ class TasksViewModel @ViewModelInject constructor(
     sealed class TasksEvent {
         object NavigateToAddTaskScreen : TasksEvent()
         data class NavigateToEditTaskScreen(val task: TaskModel) : TasksEvent()
-        data class ShowUndoDeleteTaskMessage(val task: Task) : TasksEvent()
+        data class ShowUndoDeleteTaskMessage(val task: TaskModel) : TasksEvent()
         data class ShowTaskSavedConfirmationMessage(val msg: String) : TasksEvent()
         object ShowDeleteAllCompletedDialog : TasksEvent()
         object ShowSignOutConfirmDialog : TasksEvent()

@@ -190,9 +190,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         }
 
         setHasOptionsMenu(true)
-
         binding.recyclerViewTasks.adapter = adapterFirebase
-
     }
 
     fun onItemClick(task: TaskModel) {
