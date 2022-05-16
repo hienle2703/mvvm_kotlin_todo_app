@@ -1,13 +1,10 @@
 package com.codinginflow.mvvmtodo.ui.tasks
 
 import android.os.Bundle
-import android.util.Log
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
@@ -20,12 +17,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
+import com.codinginflow.mvvmtodo.data.realtimedata.TaskModel
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
+import com.codinginflow.mvvmtodo.databinding.ItemTaskBinding
 import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
+import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.firebase.ui.database.FirebaseRecyclerOptions
 
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_tasks.*
 
@@ -33,40 +37,72 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-
 private const val TAG = "TasksFragment"
 
 @AndroidEntryPoint
-class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClickListener {
+class TasksFragment : Fragment(R.layout.fragment_tasks) {
 
-    private val viewModel: TasksViewModel by viewModels()
+    val viewModel: TasksViewModel by viewModels()
 
     private lateinit var searchView: SearchView
 
-    private lateinit var auth: FirebaseAuth
+    val auth: FirebaseAuth = Firebase.auth
+    private val user = auth.currentUser
+    private val userId = user?.uid ?: ""
+    private val reference = FirebaseDatabase.getInstance().reference.child("tasks").child(userId)
 
+
+    val options: FirebaseRecyclerOptions<TaskModel> =
+        FirebaseRecyclerOptions.Builder<TaskModel>()
+            .setQuery(reference, TaskModel::class.java)
+            .build()
+
+    val adapterFirebase =
+        object : FirebaseRecyclerAdapter<TaskModel, TasksViewHolder>(options) {
+
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TasksViewHolder {
+                val binding: ItemTaskBinding = ItemTaskBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false)
+                return TasksViewHolder(binding)
+            }
+
+            override fun onBindViewHolder(
+                holder: TasksViewHolder,
+                position: Int,
+                model: TaskModel
+            ) {
+                val currentItem = getItem(position)
+                holder.bind(currentItem)
+            }
+        }
+
+    override fun onStart() {
+        super.onStart()
+        adapterFirebase.startListening()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        adapterFirebase.stopListening()
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        auth = Firebase.auth
         val binding = FragmentTasksBinding.bind(view)
 
-        val taskAdapter =
-            TasksAdapter(this) // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
+
+        // Pass the listener to the adapter (which is the fragment itself because it implemented the interface
+//        val taskAdapter = TasksAdapter(this)
 
 
         binding.apply {
             recyclerViewTasks.apply {
-                adapter = taskAdapter
-
+                adapter = adapterFirebase
 
                 layoutManager = LinearLayoutManager(requireContext())
                 setHasFixedSize(true)
             }
-
 
             // IMPORTANT!: Handle Swipe action of Task Fragment
             ItemTouchHelper(object :
@@ -80,7 +116,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                    val task = taskAdapter.currentList[viewHolder.adapterPosition]
+                    val task = adapterFirebase.getItem(viewHolder.adapterPosition)
                     viewModel.onTaskSwiped(task, ::checkEmpty)
 
 
@@ -98,11 +134,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
             viewModel.onAddEditResult(result)
         }
 
-        viewModel.tasks.observe(viewLifecycleOwner) {
-            taskAdapter.submitList(it)
-            checkEmpty(it.count() ?: 0)
-        }
+//        viewModel.tasks.observe(viewLifecycleOwner) { taskList ->
+//            adapterFirebase.submitList(taskList) // provide new data for the Adapter
+//            checkEmpty(taskList.count() ?: 0)
+//        }
 
+        // GATHER & DISPATCH EVENTS FROM VIEWMODEL
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.tasksEvent.collect { event ->
                 when (event) {
@@ -153,15 +190,14 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
         }
 
         setHasOptionsMenu(true)
-
-
+        binding.recyclerViewTasks.adapter = adapterFirebase
     }
 
-    override fun onItemClick(task: Task) {
+    fun onItemClick(task: TaskModel) {
         viewModel.onTaskSelected(task)
     }
 
-    override fun onCheckBoxClick(task: Task, isChecked: Boolean) {
+    fun onCheckBoxClick(task: TaskModel, isChecked: Boolean) {
         viewModel.onTaskCheckedChange(task, isChecked)
     }
 
@@ -230,11 +266,41 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
 
     }
 
+    inner class TasksViewHolder(private val binding: ItemTaskBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+        init {
+            binding.apply {
+
+                root.setOnClickListener {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val task = adapterFirebase.getItem(position)
+                        onItemClick(task)
+                    }
+                }
+                checkBoxCompleted.setOnClickListener {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val task = adapterFirebase.getItem(position)
+                        onCheckBoxClick(task, checkBoxCompleted.isChecked)
+                    }
+                }
+
+            }
+        }
+
+        fun bind(task: TaskModel) {
+            binding.apply {
+                checkBoxCompleted.isChecked = task.completed
+                textViewName.text = task.name
+                textViewName.paint.isStrikeThruText = task.completed
+                labelPriority.isVisible = task.important
+            }
+        }
+    }
+
     fun checkEmpty(emptyCondition: Int) {
-
-//        var emptyCondition = viewModel.tasks.value?.count() ?: 0
-
-        Log.v(TAG, "Viewmodel tasks $emptyCondition");
 
         empty_view.visibility = (if (emptyCondition == 0) View.VISIBLE else View.GONE)
         recycler_view_tasks.visibility =
