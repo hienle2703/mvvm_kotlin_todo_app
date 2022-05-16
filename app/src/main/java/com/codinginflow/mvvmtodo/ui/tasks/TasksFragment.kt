@@ -152,15 +152,12 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
                     }
                     // Navigation component cần phải generate code cho navigation event. Vì vậy sau khi tạo navigation event thì phải compile project (rebuild)
                     is TasksViewModel.TasksEvent.NavigateToAddTaskScreen -> {
-
                         val action =
                             TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(
                                 null,
                                 "New Task"
                             )
                         findNavController().navigate(action)
-
-                        // hoặc có thể viết findNavController().navigate(R.id.taskFragment) cho gọn nhưng nên xài action
                     }
                     is TasksViewModel.TasksEvent.NavigateToEditTaskScreen -> {
 
@@ -217,9 +214,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             viewModel.searchQuery.value = it
         }
 
-        // to read something from the Flow we have to launch the coroutines scope
         viewLifecycleOwner.lifecycleScope.launch {
-
             menu.findItem(R.id.action_hide_completed_task).isChecked =
                 viewModel.preferencesFlow.first().hideCompleted
         }

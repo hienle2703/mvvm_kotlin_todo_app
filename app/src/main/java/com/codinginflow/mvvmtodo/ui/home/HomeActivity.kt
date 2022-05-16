@@ -1,6 +1,7 @@
 package com.codinginflow.mvvmtodo.ui.home;
 
 import android.app.Activity
+import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -20,6 +21,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        window.statusBarColor = Color.WHITE
 
         // nếu mà dùng mỗi findNavController() không trong MainActivity thì sẽ crash nên phải gọi thông qua supportFragmentManager
         val navHostFragment =
