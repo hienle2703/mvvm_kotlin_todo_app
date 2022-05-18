@@ -18,6 +18,7 @@ import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.data.realtimedata.TaskModel
+import com.codinginflow.mvvmtodo.data.repositories.TaskDataSource
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
 import com.codinginflow.mvvmtodo.databinding.ItemTaskBinding
 import com.codinginflow.mvvmtodo.util.exhaustive
@@ -124,7 +125,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
             }).attachToRecyclerView(recyclerViewTasks)
 
             fabAddTask.setOnClickListener {
-                viewModel.onAddNewTaskClick()
+//                viewModel.onAddNewTaskClick()
+
+                viewModel.getTasks()
             }
         }
 
@@ -135,7 +138,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         }
 
 //        viewModel.tasks.observe(viewLifecycleOwner) { taskList ->
-//            adapterFirebase.submitList(taskList) // provide new data for the Adapter
+//            binding.recyclerViewTasks.adapter.submitList(taskList) // provide new data for the Adapter
 //            checkEmpty(taskList.count() ?: 0)
 //        }
 
@@ -190,7 +193,7 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         }
 
         setHasOptionsMenu(true)
-        binding.recyclerViewTasks.adapter = adapterFirebase
+//        binding.recyclerViewTasks.adapter = adapterFirebase
     }
 
     fun onItemClick(task: TaskModel) {
@@ -208,7 +211,9 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         searchView = searchItem.actionView as SearchView // turn this into property
 
         val pendingQuery = viewModel.searchQuery.value
-        if (pendingQuery != null && pendingQuery.isNotEmpty()) {
+        if (pendingQuery != null &&
+            pendingQuery.isNotEmpty()
+        ) {
             searchItem.expandActionView()
             searchView.setQuery(pendingQuery, false)
         }
@@ -306,5 +311,4 @@ class TasksFragment : Fragment(R.layout.fragment_tasks) {
         recycler_view_tasks.visibility =
             (if (emptyCondition == 0) View.GONE else View.VISIBLE)
     }
-
 }

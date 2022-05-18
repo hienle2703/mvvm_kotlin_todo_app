@@ -8,6 +8,7 @@ import com.codinginflow.mvvmtodo.data.PreferencesManager
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.TaskDao
 import com.codinginflow.mvvmtodo.data.realtimedata.TaskModel
+import com.codinginflow.mvvmtodo.data.repositories.TaskDataSource
 import com.codinginflow.mvvmtodo.ui.home.ADD_TASK_RESULT_OK
 import com.codinginflow.mvvmtodo.ui.home.EDIT_TASK_RESULT_OK
 
@@ -17,6 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -51,6 +53,19 @@ class TasksViewModel @ViewModelInject constructor(
     }
 
     val tasks = tasksFlow.asLiveData()
+
+    fun getTasks() {
+        viewModelScope.launch {
+            val taskDataSource = TaskDataSource()
+            taskDataSource.getTasks().collect { response ->
+                for (item in response) {
+                    println("=======item $item")
+                }
+                println("======== $response")
+            }
+
+        }
+    }
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateSortOrder(sortOrder)

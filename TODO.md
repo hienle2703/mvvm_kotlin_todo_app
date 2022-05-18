@@ -1,3 +1,12 @@
+Apply Clean architecture 
+==> Create a place for functions CRUD
+
+==> Call functions through ViewModel
+
+==> Apply data from ViewModel to View
+
+-------------------------------
+
 1/ Retrieve data from Realtime DB -> TasksAdapter -> RecyclerView
 
 - retrieve_layout == item_tasks
